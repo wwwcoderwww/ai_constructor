@@ -1,11 +1,27 @@
 import { createStore } from 'vuex'
 import axios from 'axios';
 import config from '@/config/config';
+import { Client } from "@gradio/client";
 
 export default createStore({
   state: {
+    collapse: true,
+    show_history: 1,
+    show_code: 0,
+    show_mobil: 0,
+    disable_send_button: 0,
+    model_id: 1,
+    models: [
+      {id: 1, name: 'Qwen/Qwen3-Coder-WebDev'}
+    ],
+    notifications: []
   },
   getters: {
+    getNameModelById (state) {
+      return state.models.filter(element => {
+        return element.id == state.model_id
+      });
+    }
   },
   mutations: {
   },
@@ -16,7 +32,8 @@ export default createStore({
         if (response.status == 200) {
           state.id = response.data.id;
           state.history = response.data.history;
-          state.model_id = response.data.model_id;
+          state.user = response.data.user;
+          state.model_id = parseInt(response.data.model_id);
           state.name = response.data.name;
           state.prompt = response.data.prompt;
           state.status = response.data.status;
@@ -31,6 +48,74 @@ export default createStore({
         // always executed
       });  
     },
+
+    saveHistory({state}) {
+      axios.post(config.serverApi + '/ai/landings/add_history', {
+        a_i_landing_id: state.id,
+        text: state.prompt,
+        is_question: 1
+      })
+    },
+
+    saveLanding({state}) {
+      axios.post(config.serverApi + '/ai/landings/update', {
+        id: state.id,
+        model_id: state.model_id,
+        prompt: state.prompt,
+        text: state.text
+      })
+      .then(function (response) {
+        console.log(response)
+        state.notifications.push({
+          title: "Сохранение",
+          type: "success",
+          text: response.data
+        })
+        setTimeout(()=>{
+          state.notifications.shift()
+        }, 2000)
+        
+      })
+      .catch(function (error) {
+        console.log(error);
+
+        state.notifications.push({
+          title: "Ошибка",
+          type: "error",
+          text: typeof(error.response) != 'undefined' ? error.response.data : 'Не удалось сохранить изменения!'
+        })
+        setTimeout(()=>{
+          state.notifications.shift()
+        }, 4000)
+      });
+    },
+
+    async getCode(store, context) {
+      store.state.disable_send_button = 1;
+
+      let newHistory = {
+        text: store.state.prompt,
+        created_at: new Date(),
+        is_question: 1
+      }
+
+      store.state.history.push(newHistory)
+      store.state.prompt = typeof(context) != 'undefined' ? context.prompt : store.state.prompt
+      store.dispatch('saveHistory')
+
+      const client = await Client.connect(store.getters.getNameModelById[0].name);
+      const result = await client.predict("/generate_code", { 		
+              input_value: store.state.prompt, 		
+              system_prompt_input_value: "null", 
+      });
+
+      let code = result.data[0].value
+      code = code.slice(7)
+      code = code.slice(0, - 3)
+      store.state.text = code
+
+      store.state.disable_send_button = 0;
+    }
   },
   modules: {
   }

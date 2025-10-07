@@ -15,8 +15,11 @@ const vuetify = createVuetify({
     directives,
 })
 
-createApp(App)
+const app = createApp(App)
     .use(store)
     .use(router)
-    .use(vuetify)
-    .mount('#app')
+    .use(vuetify);
+
+app.config.globalProperties.window = window
+
+app.mount('#app')

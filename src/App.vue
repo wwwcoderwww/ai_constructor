@@ -1,18 +1,7 @@
 <template>
   <main-layout>
     <v-container>
-      <div
-        style="position: fixed; z-index: 99999; right: 20px; max-width: 400px"
-      >
-        <v-alert
-          v-for="notification in this.$store.state.notifications"
-          :text="notification.text"
-          :title="notification.title"
-          :type="notification.type"
-          class="mb-3 elevation-5 text-left"
-        ></v-alert>
-
-      </div>
+      
       <v-row>
         <v-col cols="12" sm="12" md="6">
           <!-- <HeaderAndBody /> -->
