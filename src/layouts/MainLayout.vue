@@ -27,30 +27,32 @@
         </div>
 
         <div class="textfieldPrompt" :style="{position : (this.$store.state.show_history && this.$store.state.screen_width < 960) || this.$store.state.screen_width < 960 ? 'relative' : 'absolute'}">
-        <v-textarea
-          bg-color="grey-lighten-2"
-          color="primary"
-          label="Введите ваш промт"
-          v-model="this.$store.state.prompt"
-          :style="{height : this.$store.state.show_history || this.$store.state.screen_width < 960 ? '' : '68vh'}"
-        ></v-textarea>
-        <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode'); this.$store.state.prompt = ''"></v-btn>
+          <!-- <v-textarea
+            bg-color="grey-lighten-2"
+            @click.right.prevent="triggerFileInput"
+            color="primary"
+            label="Введите ваш промт"
+            v-model="this.$store.state.prompt"
+            :style="{height : this.$store.state.show_history || this.$store.state.screen_width < 960 ? '' : '68vh'}"
+          ></v-textarea> -->
+          <froala 
+            id="edit" 
+            :tag="'textarea'" 
+            :config="config" 
+            v-model:value="this.$store.state.prompt" 
+            :style="{height : this.$store.state.show_history || this.$store.state.screen_width < 960 ? '' : '68vh'}"
+          >
+          </froala>
+          
+          <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode'); this.$store.state.prompt = ''"></v-btn>
+          
+          <!-- <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" />
+          <button @click="triggerFileInput" class="buttonFile"><v-icon size="small" icon="mdi-paperclip"></v-icon></button> -->
         </div>
       </v-col>  
 
       <v-col cols="12" xm="12" :md="this.$store.state.collapse ? '7' : '11'" class="pa-2 border-sm viewField" :style="(!this.$store.state.show_history && this.$store.state.screen_width < 960) || this.$store.state.screen_width < 960 ? 'margin-top: 0' : ''">
         <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="this.$store.state.text" v-if="!this.$store.state.show_code && !this.$store.state.disable_send_button"></iframe>
-
-        <!-- <PrismEditor
-         :key="this.$store.state.componentKey"
-          v-if="this.$store.state.show_code && !this.$store.state.disable_send_button"
-          v-mode="this.$store.state.text"
-          :languages="[['html', 'html']]"
-          theme="okaidia"
-          :prismjs='true'
-          style="width: 100%;"
-        ></PrismEditor> -->
-
 
         <prism-editor 
           class="my-editor" 
@@ -79,24 +81,34 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import History from "@/components/History.vue";
-import { VCodeBlock } from '@wdns/vue-code-block';
-import hljs from 'highlight.js';
-import CodeEditor from "simple-code-editor";
-  // import Prism Editor
-  import { PrismEditor } from 'vue-prism-editor';
-  import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
 
-  // import highlighting library (you can use any library you want just return html string)
-  import { highlight, languages } from 'prismjs/components/prism-core';
-  import 'prismjs/components/prism-clike';
-  import 'prismjs/components/prism-javascript';
-  import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
+// import Prism Editor
+import { PrismEditor } from 'vue-prism-editor';
+import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+
+// import highlighting library (you can use any library you want just return html string)
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 
 export default {
   name: "MainLayout",
   data: () => ({
     width: window.innerWidth,
-    code: 'console.log("Hello World")'
+    code: 'console.log("Hello World")',
+    config: {
+        events: {
+          initialized: function () {
+            console.log('initialized')
+          }
+        },
+          toolbarButtons: [['insertImage']],
+          toolbarBottom: true,
+          wordCounterCount: false,
+          charCounterCount: false
+      },
+      model: 'Edit Your Content Here!'
   }),
 
   components: {
@@ -108,6 +120,16 @@ export default {
       highlighter(code) {
         return highlight(code, languages.js); // languages.<insert language> to return html with markup
       },
+
+      triggerFileInput() {
+        this.$refs.fileInput.click();
+      },
+      handleFileChange(event) {
+        this.selectedFile = event.target.files[0];
+        // You can now do something with the selected file,
+        // like uploading it to a server or processing it locally.
+        console.log('File selected:', this.selectedFile);
+      }
     },
 
   mounted() {
@@ -149,7 +171,8 @@ export default {
   .textfieldPrompt {
     max-width: 33.3333333333%;
     position: absolute;
-    bottom: -21px;
+    bottom: 0px;
+    // bottom: -21px;
     width: 98vw;
 
     @media only screen and (max-width: 960px) {
@@ -212,5 +235,15 @@ export default {
     background: white !important;
     margin: 2px !important;
     border-radius: 3px !important;
+}
+
+.buttonFile {
+  position: absolute;
+  z-index: 30;
+  bottom: 27px;
+  left: 5px;
+  border: 1px solid gray;
+  border-radius: 4px;
+  color: gray;
 }
 </style>
