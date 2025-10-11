@@ -2,6 +2,8 @@ import { createStore } from 'vuex'
 import axios from 'axios';
 import config from '@/config/config';
 import { Client } from "@gradio/client";
+import { convert, compile } from 'html-to-text';
+
 
 export default createStore({
   state: {
@@ -119,9 +121,11 @@ export default createStore({
       store.state.history.push(newHistory)
       store.dispatch('saveHistory')
 
+      let prompt = convert(store.state.prompt).toString()
+
       const client = await Client.connect(store.getters.getNameModelById[0].name);
       const result = await client.predict("/generate_code", { 		
-              input_value: store.state.prompt, 		
+              input_value: prompt, 		
               system_prompt_input_value: "null", 
       });
 
@@ -132,6 +136,7 @@ export default createStore({
 
       store.state.disable_send_button = 0;
     }
+    
   },
   modules: {
   }

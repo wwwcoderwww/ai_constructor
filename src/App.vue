@@ -14,12 +14,19 @@
 
 <script>
 import MainLayout from "@/layouts/MainLayout.vue";
+// import FroalaEditor from 'froala-editor';
 
-// export default defineComponent({
-//   setup() {
 
-//   },
-// })
+// FroalaEditor.DefineIcon('alert', {NAME: 'info', SVG_KEY: 'help'});
+//   FroalaEditor.RegisterCommand('alert', {
+//     title: 'Hello',
+//     focus: false,
+//     undo: false,
+//     refreshAfterCallback: false,
+//     callback: function () {
+//       alert('Hello!');
+//     }
+//   });
 export default {
   components: {
     MainLayout,

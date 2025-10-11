@@ -8,7 +8,7 @@
     >
     <v-card-text style="text-align: left" class="chat-item">{{text(history.title, history.text)}}</v-card-text>
         <div class="hourAgo">{{getHourAgo(history.created_at)}} часов назад</div>
-        <div style="text-align: left; padding-left: 9px; padding-bottom: 3px; font-size: 12px;">{{dateTime()}}</div>
+        <div style="text-align: left; padding-left: 9px; padding-bottom: 3px; font-size: 12px;">{{dateTime(history.created_at)}}</div>
         <v-card-actions class="float-right" style="position: absolute; right: -3px; bottom: -10px" v-if="history.is_question">
             <v-btn prepend-icon="mdi-autorenew" variant="outlined" size="small" :disabled="this.$store.state.disable_send_button" @click="this.$store.dispatch('getCode', {prompt: history.text})">Обновить</v-btn>
         </v-card-actions>
@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import { convert, compile } from 'html-to-text';
+
 export default {
     props: {
         number: {
@@ -46,6 +48,7 @@ export default {
 
             return Math.floor(hoursAgo); // Returns whole hours
         },
+        
         dateTime(dateTime) {
             const formatter = new Intl.DateTimeFormat('ru-Ru', {
                 year: 'numeric',
@@ -57,21 +60,21 @@ export default {
 
             let nowDate = new Date(dateTime)
 
-            return formatter.format(dateTime).replace(' г.', ''); 
+            return formatter.format(nowDate).replace(' г.', ''); 
         },
         title(title, text) {
             if (title) {
-                return title
+                return convert(title)
             }
 
-            return text ? text.slice(0, 50) : '';
+            return text ? convert(text).slice(0, 50) : '';
         },
         text(title, text) {
             // if (title) {
             //     return text
             // }
 
-            return text ? text.slice(0, 250) : '';
+            return text ? convert(text).slice(0, 250) : '';
         }
     }
 }

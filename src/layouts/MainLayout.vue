@@ -16,11 +16,34 @@
         ></v-alert>
       </div>
 
+    <v-dialog
+      v-model="openPopupProps"
+      width="auto"
+    >
+      <v-card
+        max-width="400"
+        prepend-icon="mdi-cursor-default-click"
+        title="Список промптов"
+      >
+        <!-- <template v-slot:actions> -->
+          <!-- <v-btn
+            class="ms-auto"
+            text="Закрыть"
+            @click="openPopupProps = false"
+          ></v-btn> -->
+        <!-- </template> -->
+
+        <v-btn @click="defaultProps(1)">
+          Простая форма
+        </v-btn>
+      </v-card>
+    </v-dialog>
+
     <Navbar  :key="this.$store.state.componentKey" />
     <v-row class="ma-0 mt-3" style="display: flex; justify-content: space-around; position: relative; overflow: hidden;">
       
       <v-col cols="12" xm="12" md="4" class="pa-2 " align-self="end" style="display: flex; flex-direction: column; " v-if="this.$store.state.collapse">
-        <div class="chatWrap" v-if="this.$store.state.show_history">
+        <div class="chatWrap" v-if="this.$store.state.show_history" :style="{marginBottom : (!(this.$store.state.screen_width < 960) ? '180px' : '30px')}">
           <div v-for="(item, index) in this.$store.state.history" :key="index">
             <History  :key="this.$store.state.componentKey" :number="index" />
           </div>
@@ -46,8 +69,8 @@
           
           <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode'); this.$store.state.prompt = ''"></v-btn>
           
-          <!-- <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" />
-          <button @click="triggerFileInput" class="buttonFile"><v-icon size="small" icon="mdi-paperclip"></v-icon></button> -->
+          <!-- <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" /> -->
+          <button @click="openPopupProps = true" class="buttonDefaultProps"><v-icon size="small" icon="mdi-cursor-default-click"></v-icon>Выбрать промпт</button>
         </div>
       </v-col>  
 
@@ -97,16 +120,20 @@ export default {
   data: () => ({
     width: window.innerWidth,
     code: 'console.log("Hello World")',
+    openPopupProps: false,
+
     config: {
         events: {
           initialized: function () {
             console.log('initialized')
           }
         },
-          toolbarButtons: [['insertImage']],
-          toolbarBottom: true,
-          wordCounterCount: false,
-          charCounterCount: false
+        toolbarButtons: [['insertImage']],
+        toolbarBottom: true,
+        wordCounterCount: false,
+        charCounterCount: false,
+        quickInsertEnabled: false,
+        placeholderText: 'Введите ваш промпт'
       },
       model: 'Edit Your Content Here!'
   }),
@@ -129,6 +156,15 @@ export default {
         // You can now do something with the selected file,
         // like uploading it to a server or processing it locally.
         console.log('File selected:', this.selectedFile);
+      },
+      defaultProps(item = 1) {
+        const list = {
+          // 1: "Simple page with form where has field for phone and atribute name=phone. Language for page is russion"
+          1: "Страница с формой обратной связи, где есть обязательное поле  для ввода телефона с name=phone и поле для сообщений с name=message"
+        }
+
+        this.openPopupProps = false
+        this.$store.state.prompt = list[item]
       }
     },
 
@@ -197,6 +233,7 @@ export default {
     position: absolute !important;
     right: 7px;
     top: 7px;
+    z-index: 9999;
   }
 
   .viewField {
@@ -237,13 +274,21 @@ export default {
     border-radius: 3px !important;
 }
 
-.buttonFile {
+.buttonDefaultProps {
   position: absolute;
   z-index: 30;
-  bottom: 27px;
-  left: 5px;
-  border: 1px solid gray;
+  bottom: 17px;
+  left: 52px;
+  border: 2px solid #333333;
   border-radius: 4px;
-  color: gray;
+  color: #333333;
+  padding-right: 4px;
+  font-size: 9px;
+}
+.fr-newline {
+  display: none !important;
+}
+.fr-desktop .fr-command:hover:not(.fr-table-cell) {
+  background: white !important;
 }
 </style>
