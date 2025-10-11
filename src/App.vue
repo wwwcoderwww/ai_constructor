@@ -57,4 +57,17 @@ nav {
 .tox-statusbar__resize-handle {
   width: 100% !important;
 }
+
+.wrapper {
+  height: 100% !important;
+}
+
+#app {
+// .content-wrapper {
+  // background: green;
+}
+
+.v-select__selection-text {
+  background: white !important;
+}
 </style>

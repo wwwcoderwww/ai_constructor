@@ -1,14 +1,15 @@
 <template>
      <v-card 
-        :title="history.title" 
+        :title="title(history.title, history.text)" 
         :variant="history.is_question ? 'tonal' : 'outlined'"
         class="mt-4"
         :class="history.is_question ? 'float-right' : 'float-left border-sm'"
-        style="width: 85%"
+        style="width: 85%; text-align: start;"
     >
-    <v-card-text style="text-align: left">{{history.text}}</v-card-text>
-        <div style="text-align: left; padding-left: 9px; padding-bottom: 3px; font-size: 12px;">{{new Date(history.created_at).toLocaleDateString()}}</div>
-        <v-card-actions class="float-right" style="position: absolute; right: -3px; bottom: -7px" v-if="history.is_question">
+    <v-card-text style="text-align: left" class="chat-item">{{text(history.title, history.text)}}</v-card-text>
+        <div class="hourAgo">{{getHourAgo(history.created_at)}} часов назад</div>
+        <div style="text-align: left; padding-left: 9px; padding-bottom: 3px; font-size: 12px;">{{dateTime()}}</div>
+        <v-card-actions class="float-right" style="position: absolute; right: -3px; bottom: -10px" v-if="history.is_question">
             <v-btn prepend-icon="mdi-autorenew" variant="outlined" size="small" :disabled="this.$store.state.disable_send_button" @click="this.$store.dispatch('getCode', {prompt: history.text})">Обновить</v-btn>
         </v-card-actions>
     </v-card>
@@ -36,10 +37,74 @@ export default {
                 this.$store.commit("updateCard", payload);
             },
         },
+    },
+    methods: {
+        getHourAgo(date = 0) {
+            const now = new Date();
+            const diffMilliseconds = now.getTime() - new Date(date).getTime();
+            const hoursAgo = diffMilliseconds / (1000 * 60 * 60);
+
+            return Math.floor(hoursAgo); // Returns whole hours
+        },
+        dateTime(dateTime) {
+            const formatter = new Intl.DateTimeFormat('ru-Ru', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+
+            let nowDate = new Date(dateTime)
+
+            return formatter.format(dateTime).replace(' г.', ''); 
+        },
+        title(title, text) {
+            if (title) {
+                return title
+            }
+
+            return text ? text.slice(0, 50) : '';
+        },
+        text(title, text) {
+            // if (title) {
+            //     return text
+            // }
+
+            return text ? text.slice(0, 250) : '';
+        }
     }
 }
 </script>
 
-<style>
+<style lang="scss">
+    .chatWrap {
+        & .v-btn__prepend {
+            font-size: 9px !important;
+            margin-right: 0 !important;
+        }
 
+        .v-btn__content {
+            font-size: 8px;
+            text-transform: capitalize;
+            letter-spacing: 1px;
+        }
+
+            button {
+                height: 21px !important;
+                padding: 0 3px !important;
+        }
+    }
+
+    .hourAgo {
+        font-size: 12px;
+        color: gray;
+        font-weight: 400;
+        text-align: start;
+        padding-left: 10px;
+    }
+    .v-card .v-card-text {
+        margin-top: -5px;
+        margin-bottom: -5px;
+    }
 </style>

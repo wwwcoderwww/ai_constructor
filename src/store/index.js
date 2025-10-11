@@ -9,6 +9,7 @@ export default createStore({
     show_history: 1,
     show_code: 0,
     show_mobil: 0,
+    componentKey: 1,
     disable_send_button: 0,
     model_id: 1,
     models: [
@@ -33,11 +34,12 @@ export default createStore({
           state.id = response.data.id;
           state.history = response.data.history;
           state.user = response.data.user;
-          state.model_id = parseInt(response.data.model_id);
+          state.model_id = parseInt(response.data.model_id) ? parseInt(response.data.model_id) : parseInt(1);
           state.name = response.data.name;
           state.prompt = response.data.prompt;
           state.status = response.data.status;
           state.text = response.data.text;
+          state.token = response.data.token;
         }
         console.log('getData', state);
       })
@@ -65,7 +67,7 @@ export default createStore({
         text: state.text
       })
       .then(function (response) {
-        console.log(response)
+        console.log(response) 
         state.notifications.push({
           title: "Сохранение",
           type: "success",
@@ -91,6 +93,21 @@ export default createStore({
     },
 
     async getCode(store, context) {
+      store.state.prompt = typeof(context) != 'undefined' ? context.prompt : store.state.prompt
+
+      if (store.state.prompt.length < 20) {
+        store.state.notifications.push({
+          title: "Ошибка",
+          type: "error",
+          text: 'Промпт должен быть не менее 20 символов'
+        })
+        setTimeout(()=>{
+          store.state.notifications.shift()
+        }, 4000)
+
+        return 
+      }
+
       store.state.disable_send_button = 1;
 
       let newHistory = {
@@ -100,7 +117,6 @@ export default createStore({
       }
 
       store.state.history.push(newHistory)
-      store.state.prompt = typeof(context) != 'undefined' ? context.prompt : store.state.prompt
       store.dispatch('saveHistory')
 
       const client = await Client.connect(store.getters.getNameModelById[0].name);

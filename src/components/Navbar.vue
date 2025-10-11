@@ -45,23 +45,23 @@
                 <v-btn icon="mdi-arrow-collapse-left" variant="plain" size="small" v-if="this.$store.state.collapse" @click="collapse"></v-btn>
                 <v-btn icon="mdi-arrow-collapse-right" variant="plain" size="small" v-if="!this.$store.state.collapse" @click="collapse"></v-btn>
                 <v-btn-toggle border v-model="this.$store.state.show_code" mandatory  size="small" style="max-height: 38px">
-                    <v-btn variant="plain" size="small">Просмотр</v-btn>
-                    <v-btn variant="plain" size="small">Код</v-btn>
+                    <v-btn :class="this.$store.state.show_code ? '' : 'activeButton'" variant="plain" size="small">Просмотр</v-btn>
+                    <v-btn :class="!this.$store.state.show_code ? '' : 'activeButton'" variant="plain" size="small">Код</v-btn>
                 </v-btn-toggle>
-                <v-btn icon="mdi-autorenew" variant="plain" size="small" @click="window.location.reload()"></v-btn>
+                <v-btn icon="mdi-autorenew" variant="plain" size="small" @click="reload()"></v-btn>
                 <v-btn-toggle border v-model="this.$store.state.show_mobil" size="small" style="max-height:38px" class="d-md-flex d-none">
-                    <v-btn size="small"  variant="plain" icon="mdi-monitor"></v-btn>
-                    <v-btn size="small"  variant="plain" icon="mdi-cellphone"></v-btn>
+                    <v-btn :class="this.$store.state.show_mobil ? '' : 'activeButton'" size="small"  variant="plain" icon="mdi-monitor"></v-btn>
+                    <v-btn :class="!this.$store.state.show_mobil ? '' : 'activeButton'" size="small"  variant="plain" icon="mdi-cellphone"></v-btn>
                 </v-btn-toggle>
         </v-col>
 
         <v-col cols="12" sm="12" md="3" class="d-flex align-center ml-3 mt-4 mt-md-0 ml-md-0">
             <v-btn-toggle border v-model="view_monitor" size="small" style="max-height:38px" class="d-md-none d-flex">
-                <v-btn size="small"  variant="plain" value="monitor" icon="mdi-monitor"></v-btn>
+                <v-btn size="small"  @click="dialog = true" variant="plain" value="monitor" icon="mdi-monitor"></v-btn>
                 <v-btn size="small"  variant="plain" value="mobil" icon="mdi-cellphone"></v-btn>
             </v-btn-toggle>
 
-            <v-btn variant="plain" size="small" value="render" @click="shareContent">Поделиться</v-btn>
+            <Share />
             <v-btn value="code" class="bg-primary" @click="this.$store.dispatch('saveLanding')">Сохранить</v-btn>
         </v-col>
 
@@ -69,9 +69,22 @@
 </template>
 
 <script>
+import Share from "@/components/Share.vue";
+
 export default {
     name: 'Navbar',
+    components: {
+        Share
+    },
     data: () => ({
+        windowFeatures: {},
+        shareOptions: { 
+          url: 'https://github.com/', 
+          title: 'Title', 
+          text: 'Text',
+        },
+        useNativeBehavior: false,
+
         view_monitor: 'mobil',
         view_format: 'render',
         
@@ -96,6 +109,11 @@ export default {
             // Fallback for browsers that don't support navigator.share
             alert('Your browser does not support the share API.');
             }
+        },
+        reload() {
+            this.$store.state.componentKey = this.$store.state.componentKey + 1;
+            this.$store.state.show_code = 0;
+            this.$store.state.show_mobil = 0;
         }
     },
     computed: {
@@ -111,5 +129,11 @@ export default {
         @media only screen and (max-width: 960px) {
             max-width: 85%;
         }
+    }
+    
+    .v-btn__content {
+         font-size: 12px;
+        text-transform: capitalize;
+        letter-spacing: 1px;
     }
 </style>

@@ -16,39 +16,52 @@
         ></v-alert>
       </div>
 
-    <Navbar />
-    <v-row class="ma-0 mt-3" style="display: flex; justify-content: space-around;">
+    <Navbar  :key="this.$store.state.componentKey" />
+    <v-row class="ma-0 mt-3" style="display: flex; justify-content: space-around; position: relative; overflow: hidden;">
       
-      <v-col cols="12" xm="12" md="4" class="pa-2 " align-self="end" style="display: flex; flex-direction: column" v-if="this.$store.state.collapse">
+      <v-col cols="12" xm="12" md="4" class="pa-2 " align-self="end" style="display: flex; flex-direction: column; " v-if="this.$store.state.collapse">
         <div class="chatWrap" v-if="this.$store.state.show_history">
           <div v-for="(item, index) in this.$store.state.history" :key="index">
-            <History :number="index" />
+            <History  :key="this.$store.state.componentKey" :number="index" />
           </div>
         </div>
 
-        <div class="textfieldPrompt" :style="{position : (!this.$store.state.show_history && this.$store.state.screen_width < 960)  ? 'relative' : 'absolute'}">
+        <div class="textfieldPrompt" :style="{position : (this.$store.state.show_history && this.$store.state.screen_width < 960) || this.$store.state.screen_width < 960 ? 'relative' : 'absolute'}">
         <v-textarea
           bg-color="grey-lighten-2"
           color="primary"
-          label="Ваш промпт"
+          label="Введите ваш промт"
           v-model="this.$store.state.prompt"
           :style="{height : this.$store.state.show_history || this.$store.state.screen_width < 960 ? '' : '68vh'}"
         ></v-textarea>
-        <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode')"></v-btn>
+        <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode'); this.$store.state.prompt = ''"></v-btn>
         </div>
       </v-col>  
 
-      <v-col cols="12" xm="12" :md="this.$store.state.collapse ? '7' : '11'" class="pa-2 border-sm viewField" :style="!this.$store.state.show_history && this.$store.state.screen_width < 960 ? 'margin-top: 0' : ''">
+      <v-col cols="12" xm="12" :md="this.$store.state.collapse ? '7' : '11'" class="pa-2 border-sm viewField" :style="(!this.$store.state.show_history && this.$store.state.screen_width < 960) || this.$store.state.screen_width < 960 ? 'margin-top: 0' : ''">
         <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="this.$store.state.text" v-if="!this.$store.state.show_code && !this.$store.state.disable_send_button"></iframe>
 
-        <VCodeBlock
+        <!-- <PrismEditor
+         :key="this.$store.state.componentKey"
           v-if="this.$store.state.show_code && !this.$store.state.disable_send_button"
-          :code="this.$store.state.text"
-          lang="html"
+          v-mode="this.$store.state.text"
+          :languages="[['html', 'html']]"
           theme="okaidia"
           :prismjs='true'
           style="width: 100%;"
-        ></VCodeBlock>
+        ></PrismEditor> -->
+
+
+        <prism-editor 
+          class="my-editor" 
+          :key="this.$store.state.componentKey"
+          style="width: 100%;"
+          v-if="this.$store.state.show_code && !this.$store.state.disable_send_button"
+          v-model="this.$store.state.text" :highlight="highlighter" 
+          line-numbers
+        >
+        </prism-editor>
+
 
         <v-progress-circular
           v-if="this.$store.state.disable_send_button"
@@ -67,18 +80,35 @@
 import Navbar from "@/components/Navbar.vue";
 import History from "@/components/History.vue";
 import { VCodeBlock } from '@wdns/vue-code-block';
+import hljs from 'highlight.js';
+import CodeEditor from "simple-code-editor";
+  // import Prism Editor
+  import { PrismEditor } from 'vue-prism-editor';
+  import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+
+  // import highlighting library (you can use any library you want just return html string)
+  import { highlight, languages } from 'prismjs/components/prism-core';
+  import 'prismjs/components/prism-clike';
+  import 'prismjs/components/prism-javascript';
+  import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 
 export default {
   name: "MainLayout",
   data: () => ({
-    width: window.innerWidth
+    width: window.innerWidth,
+    code: 'console.log("Hello World")'
   }),
 
   components: {
     Navbar,
     History,
-    VCodeBlock
+    PrismEditor
   },
+  methods: {
+      highlighter(code) {
+        return highlight(code, languages.js); // languages.<insert language> to return html with markup
+      },
+    },
 
   mounted() {
     let id = 0
@@ -119,7 +149,7 @@ export default {
   .textfieldPrompt {
     max-width: 33.3333333333%;
     position: absolute;
-    bottom: -14px;
+    bottom: -21px;
     width: 98vw;
 
     @media only screen and (max-width: 960px) {
@@ -132,9 +162,11 @@ export default {
     -ms-overflow-style: none;
     overflow: -moz-scrollbars-none;
     scrollbar-width: none;
+    margin-top: -245px;
 
     @media only screen and (max-width: 960px) {
       height: 55vh;
+      margin-top: 0;
     }
   }
 
@@ -166,4 +198,19 @@ export default {
     max-height: 844px;
     max-width: 390px;
   }
+
+.v-field__field {
+  background: white;
+}
+
+.v-field-label {
+  font-weight: 400;
+}
+
+.activeButton {
+    height: auto !important;
+    background: white !important;
+    margin: 2px !important;
+    border-radius: 3px !important;
+}
 </style>
