@@ -7,11 +7,11 @@ export default {
       toolbar: "styleselect fontselect fontsizeselect | forecolor backcolor | insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image'"
     },
 
-    serverPath: 'http://127.0.0.1:8000',
-    serverApi: 'http://127.0.0.1:8000/api',
-    imagePath: 'http://127.0.0.1:8000/showcases/images/'
+    // serverPath: 'http://127.0.0.1:8000',
+    // serverApi: 'http://127.0.0.1:8000/api',
+    // imagePath: 'http://127.0.0.1:8000/showcases/images/'
 
-    // serverPath: 'https://leadpushka.ru',
-    // serverApi: 'https://leadpushka.ru/api',
-    // imagePath: 'https://leadpushka.ru/showcases/images/'
+    serverPath: 'https://leadpushka.ru',
+    serverApi: 'https://leadpushka.ru/api',
+    imagePath: 'https://leadpushka.ru/showcases/images/'
 }

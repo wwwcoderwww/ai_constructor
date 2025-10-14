@@ -2,6 +2,7 @@
   <v-container
     style="max-width: 1500px; padding-left: 0; padding-right: 0; padding-top: 0"
     class="wraper"
+    :class="this.$store.state.globalSpinner ? 'no-scroll' : ''"
   >
 
       <div
@@ -14,6 +15,13 @@
           :type="notification.type"
           class="mb-3 elevation-5 text-left"
         ></v-alert>
+      </div>
+
+      <div class="globalSpinnerWraper" v-if="this.$store.state.globalSpinner">
+        <v-progress-circular
+          color="primary"
+          indeterminate
+        ></v-progress-circular>
       </div>
 
     <v-dialog
@@ -43,9 +51,9 @@
     <v-row class="ma-0 mt-3" style="display: flex; justify-content: space-around; position: relative; overflow: hidden;">
       
       <v-col cols="12" xm="12" md="4" class="pa-2 " align-self="end" style="display: flex; flex-direction: column; " v-if="this.$store.state.collapse">
-        <div class="chatWrap" v-if="this.$store.state.show_history" :style="{marginBottom : (!(this.$store.state.screen_width < 960) ? '180px' : '30px')}">
+        <div class="chatWrap" ref="bottomElementRef" v-if="this.$store.state.show_history" :style="{marginBottom : (!(this.$store.state.screen_width < 960) ? '180px' : '30px')}">
           <div v-for="(item, index) in this.$store.state.history" :key="index">
-            <History  :key="this.$store.state.componentKey" :number="index" />
+            <History :scrollToElement="() => this.scrollToElement()" :key="this.$store.state.componentKey" :number="index" />
           </div>
         </div>
 
@@ -67,7 +75,7 @@
           >
           </froala>
           
-          <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode'); this.$store.state.prompt = ''"></v-btn>
+          <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode', {scrollElement: () => this.scrollToElement()}); this.$store.state.prompt = ''"></v-btn>
           
           <!-- <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" /> -->
           <button @click="openPopupProps = true" class="buttonDefaultProps"><v-icon size="small" icon="mdi-cursor-default-click"></v-icon>Выбрать промпт</button>
@@ -104,6 +112,7 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import History from "@/components/History.vue";
+// import { ref, onMounted } from 'vue';
 
 // import Prism Editor
 import { PrismEditor } from 'vue-prism-editor';
@@ -165,6 +174,14 @@ export default {
 
         this.openPopupProps = false
         this.$store.state.prompt = list[item]
+      },
+      scrollToElement() {
+        const el = this.$refs.bottomElementRef;
+
+        if (el) {
+          console.log('el', el.scrollHeight)
+          el.scrollTo(0, el.scrollHeight);
+        }
       }
     },
 
@@ -185,11 +202,14 @@ export default {
 
     let payload = {
       id: id,
-      activeCard: null
+      activeCard: null,
+      scrollElement: () => this.scrollToElement()
     }
     // if (typeof(token) != 'undefined' && token.length > 4) {
       this.$store.dispatch('getData', payload)
     // }
+
+    this.scrollToElement()
 
     let that = this
 
@@ -198,6 +218,13 @@ export default {
 
     function displayWindowSize() {
       that.$store.state.screen_width = window.innerWidth;
+
+      const el = that.$refs.bottomElementRef;
+
+        if (el) {
+          console.log('el2', el.scrollHeight)
+          el.scrollTo(0, el.scrollHeight);
+        }
     };
   }
 };
@@ -212,7 +239,7 @@ export default {
     width: 98vw;
 
     @media only screen and (max-width: 960px) {
-            max-width: calc(100vw - 15px);
+            max-width: calc(103% - 15px);
         }
   }
   .chatWrap {
@@ -279,11 +306,12 @@ export default {
   z-index: 30;
   bottom: 17px;
   left: 52px;
-  border: 2px solid #333333;
+  border: 1px solid #333333;
   border-radius: 4px;
   color: #333333;
   padding-right: 4px;
   font-size: 9px;
+  background-color: #e9e9e9; 
 }
 .fr-newline {
   display: none !important;
@@ -291,4 +319,28 @@ export default {
 .fr-desktop .fr-command:hover:not(.fr-table-cell) {
   background: white !important;
 }
+
+button:focus {
+      outline: none !important;
+}
+
+.fr-sticky-on {
+    position: absolute !important;
+}
+
+.globalSpinnerWraper {
+    position: absolute;
+    z-index: 9999999;
+    background: #ffffff8a;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+  .no-scroll {
+      overflow: hidden !important;
+      height: 100vh !important;
+  }
 </style>

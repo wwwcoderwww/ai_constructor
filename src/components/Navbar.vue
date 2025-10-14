@@ -111,9 +111,14 @@ export default {
             }
         },
         reload() {
+            this.$store.state.globalSpinner = 1
             this.$store.state.componentKey = this.$store.state.componentKey + 1;
             this.$store.state.show_code = 0;
             this.$store.state.show_mobil = 0;
+
+            setTimeout(() => {
+                this.$store.state.globalSpinner = 0
+            }, 2000)
         }
     },
     computed: {
@@ -136,4 +141,5 @@ export default {
         text-transform: capitalize;
         letter-spacing: 1px;
     }
+
 </style>

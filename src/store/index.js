@@ -14,6 +14,7 @@ export default createStore({
     componentKey: 1,
     disable_send_button: 0,
     model_id: 1,
+    globalSpinner: 0,
     models: [
       {id: 1, name: 'Qwen/Qwen3-Coder-WebDev'}
     ],
@@ -50,6 +51,7 @@ export default createStore({
       })
       .finally(function () {
         // always executed
+        payload.scrollElement()
       });  
     },
 
@@ -95,7 +97,7 @@ export default createStore({
     },
 
     async getCode(store, context) {
-      store.state.prompt = typeof(context) != 'undefined' ? context.prompt : store.state.prompt
+      store.state.prompt = typeof(context) != 'undefined' && context.prompt ? context.prompt : store.state.prompt
 
       if (store.state.prompt.length < 20) {
         store.state.notifications.push({
@@ -120,8 +122,11 @@ export default createStore({
 
       store.state.history.push(newHistory)
       store.dispatch('saveHistory')
+      context.scrollElement ? setTimeout(() => {context.scrollElement()}, 150) : ''
 
-      let prompt = convert(store.state.prompt).toString()
+      let prompt = convert(store.state.prompt).toString().replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '')
+
+      store.state.prompt = ''
 
       const client = await Client.connect(store.getters.getNameModelById[0].name);
       const result = await client.predict("/generate_code", { 		

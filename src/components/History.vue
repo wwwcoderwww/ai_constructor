@@ -10,7 +10,8 @@
         <div class="hourAgo">{{getHourAgo(history.created_at)}} часов назад</div>
         <div style="text-align: left; padding-left: 9px; padding-bottom: 3px; font-size: 12px;">{{dateTime(history.created_at)}}</div>
         <v-card-actions class="float-right" style="position: absolute; right: -3px; bottom: -10px" v-if="history.is_question">
-            <v-btn prepend-icon="mdi-autorenew" variant="outlined" size="small" :disabled="this.$store.state.disable_send_button" @click="this.$store.dispatch('getCode', {prompt: history.text})">Обновить</v-btn>
+            {{this.props}}
+            <v-btn prepend-icon="mdi-autorenew" variant="outlined" size="small" :disabled="this.$store.state.disable_send_button" @click="this.$store.dispatch('getCode', {prompt: history.text}); scrollToElementMethod(); ">Обновить</v-btn>
         </v-card-actions>
     </v-card>
 </template>
@@ -24,6 +25,8 @@ export default {
             default: 0,
             type: Number,
         },
+        scrollToElement: {
+        }
     },
     computed: {
         history: {
@@ -41,6 +44,13 @@ export default {
         },
     },
     methods: {
+        scrollToElementMethod() {
+            this.scrollToElement()
+
+            setTimeout(() => {
+                this.scrollToElement()
+            }, 150)
+        },
         getHourAgo(date = 0) {
             const now = new Date();
             const diffMilliseconds = now.getTime() - new Date(date).getTime();
@@ -64,17 +74,17 @@ export default {
         },
         title(title, text) {
             if (title) {
-                return convert(title)
+                return convert(title.replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', ''))
             }
 
-            return text ? convert(text).slice(0, 50) : '';
+            return text ? convert(text.replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '')).slice(0, 50) : '';
         },
         text(title, text) {
             // if (title) {
             //     return text
             // }
 
-            return text ? convert(text).slice(0, 250) : '';
+            return text ? convert(text).slice(0, 250).replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '') : '';
         }
     }
 }
