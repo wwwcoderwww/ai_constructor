@@ -59,6 +59,7 @@ export default createStore({
       axios.post(config.serverApi + '/ai/landings/add_history', {
         a_i_landing_id: state.id,
         text: state.prompt,
+        title: state.historyTitle,
         is_question: 1
       })
     },
@@ -114,8 +115,10 @@ export default createStore({
 
       store.state.disable_send_button = 1;
 
+      store.state.historyTitle = context.title
       let newHistory = {
         text: store.state.prompt,
+        title: context.title,
         created_at: new Date(),
         is_question: 1
       }

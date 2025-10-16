@@ -47,11 +47,16 @@
       </v-card>
     </v-dialog>
 
-    <Navbar  :key="this.$store.state.componentKey" />
+    <Navbar  :scrollToElement="() => this.scrollToElement()" :key="this.$store.state.componentKey" />
     <v-row class="ma-0 mt-3" style="display: flex; justify-content: space-around; position: relative; overflow: hidden;">
       
       <v-col cols="12" xm="12" md="4" class="pa-2 " align-self="end" style="display: flex; flex-direction: column; " v-if="this.$store.state.collapse">
-        <div class="chatWrap" ref="bottomElementRef" v-if="this.$store.state.show_history" :style="{marginBottom : (!(this.$store.state.screen_width < 960) ? '180px' : '30px')}">
+        <div class="chatWrap" ref="bottomElementRef" v-if="this.$store.state.show_history" :style="{marginBottom : (!(this.$store.state.screen_width < 960) ? '173px' : '15px')}">
+          <div v-for="(item, index) in this.$store.state.history" :key="index">
+            <Chat :scrollToElement="() => this.scrollToElement()" :key="this.$store.state.componentKey" :number="index" />
+          </div>
+        </div>
+         <div class="chatWrap" ref="bottomElementHistoryRef" v-if="!this.$store.state.show_history" :style="{marginBottom : (!(this.$store.state.screen_width < 960) ? '173px' : '15px')}">
           <div v-for="(item, index) in this.$store.state.history" :key="index">
             <History :scrollToElement="() => this.scrollToElement()" :key="this.$store.state.componentKey" :number="index" />
           </div>
@@ -71,7 +76,8 @@
             :tag="'textarea'" 
             :config="config" 
             v-model:value="this.$store.state.prompt" 
-            :style="{height : this.$store.state.show_history || this.$store.state.screen_width < 960 ? '' : '68vh'}"
+            height="68vh"
+            :style="{minHeight : '68vh'}"
           >
           </froala>
           
@@ -112,7 +118,7 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import History from "@/components/History.vue";
-// import { ref, onMounted } from 'vue';
+import Chat from "@/components/Chat.vue";
 
 // import Prism Editor
 import { PrismEditor } from 'vue-prism-editor';
@@ -142,7 +148,8 @@ export default {
         wordCounterCount: false,
         charCounterCount: false,
         quickInsertEnabled: false,
-        placeholderText: 'Введите ваш промпт'
+        placeholderText: 'Введите ваш промпт',
+        height: 120
       },
       model: 'Edit Your Content Here!'
   }),
@@ -150,6 +157,7 @@ export default {
   components: {
     Navbar,
     History,
+    Chat,
     PrismEditor
   },
   methods: {
@@ -181,6 +189,13 @@ export default {
         if (el) {
           console.log('el', el.scrollHeight)
           el.scrollTo(0, el.scrollHeight);
+        }
+
+        const elHistory = this.$refs.bottomElementHistoryRef;
+
+        if (elHistory) {
+          console.log('elHistory', elHistory.scrollHeight)
+          elHistory.scrollTo(0, elHistory.scrollHeight);
         }
       }
     },
@@ -221,10 +236,17 @@ export default {
 
       const el = that.$refs.bottomElementRef;
 
-        if (el) {
-          console.log('el2', el.scrollHeight)
-          el.scrollTo(0, el.scrollHeight);
-        }
+      if (el) {
+        console.log('el2', el.scrollHeight)
+        el.scrollTo(0, el.scrollHeight);
+      }
+
+      const elHistory = that.$refs.bottomElementHistoryRef;
+
+      if (elHistory) {
+        console.log('elHistory', elHistory.scrollHeight)
+        elHistory.scrollTo(0, elHistory.scrollHeight);
+      }
     };
   }
 };
@@ -243,7 +265,7 @@ export default {
         }
   }
   .chatWrap {
-    height: 88vh;
+    height: 67vh;
     overflow-y: scroll;
     -ms-overflow-style: none;
     overflow: -moz-scrollbars-none;
@@ -306,9 +328,10 @@ export default {
   z-index: 30;
   bottom: 17px;
   left: 52px;
-  border: 1px solid #333333;
+  // border: 1px solid #333333;
   border-radius: 4px;
   color: #333333;
+  padding: 1px;
   padding-right: 4px;
   font-size: 9px;
   background-color: #e9e9e9; 

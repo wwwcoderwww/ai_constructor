@@ -1,19 +1,17 @@
 <template>
      <v-card 
-        :title="title(history.title, history.text)" 
-        :variant="'outlined'"
+        :variant="history.is_question ? 'tonal' : 'outlined'"
         class="mt-4"
-        :class="history.is_question ? 'float-right border-sm' : 'float-left border-sm'"
-        style="width: 100%; text-align: start; cursor: pointer; "
-        @click="this.$store.dispatch('getCode', {prompt: history.text, title: titleHistory(history.title, history.text)}); scrollToElementMethod(); this.$store.state.show_history = 1"
+        :class="history.is_question ? 'float-right' : 'float-left border-sm'"
+        style="width: 85%; text-align: start;"
     >
-    <v-card-text style="text-align: left" class="chat-item"></v-card-text>
+    <v-card-text style="text-align: left" class="chat-item">{{text(history.title, history.text)}}</v-card-text>
         <div class="hourAgo">{{getHourAgo(history.created_at)}} часов назад</div>
         <div style="text-align: left; padding-left: 9px; padding-bottom: 3px; font-size: 12px;">{{dateTime(history.created_at)}}</div>
-        <!-- <v-card-actions class="float-right" style="position: absolute; right: -3px; bottom: -10px" v-if="history.is_question">
+        <v-card-actions class="float-right" style="position: absolute; right: -3px; bottom: -10px" v-if="history.is_question">
             {{this.props}}
-            <v-btn prepend-icon="mdi-autorenew" variant="outlined" size="small" :disabled="this.$store.state.disable_send_button" @click="this.$store.dispatch('getCode', {prompt: history.text}); scrollToElementMethod(); ">Обновить</v-btn>
-        </v-card-actions> -->
+            <v-btn prepend-icon="mdi-autorenew" variant="outlined" size="small" :disabled="this.$store.state.disable_send_button" @click="this.$store.state.prompt = history.text; scrollToElementMethod(); ">Обновить</v-btn>
+        </v-card-actions>
     </v-card>
 </template>
 
@@ -45,11 +43,6 @@ export default {
         },
     },
     methods: {
-        titleHistory(title, text) {
-            let oldTitle = this.title(title, text).replace('Возврат к варианту: ', '');
-            console.log('oldTitle', oldTitle)
-            return 'Возврат к варианту: ' + oldTitle
-        },
         scrollToElementMethod() {
             this.scrollToElement()
 

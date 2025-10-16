@@ -89,12 +89,25 @@ export default {
         view_format: 'render',
         
     }),
+    props: {
+         scrollToElement: {
+        }
+    },
     methods: {
+        scrollToElementMethod() {
+            this.scrollToElement()
+
+            setTimeout(() => {
+                this.scrollToElement()
+            }, 150)
+        },
         collapse() {
             this.$store.state.collapse = !this.$store.state.collapse
         },
         showHistory() {
             this.$store.state.show_history = !this.$store.state.show_history
+
+            this.scrollToElementMethod();
         },
         shareContent() {
             if (navigator.share) {
