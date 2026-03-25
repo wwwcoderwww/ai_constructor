@@ -23,6 +23,8 @@ import VueFroala from 'vue-froala-wysiwyg';
 import 'vuetify/dist/vuetify.min.css'
 import '@mdi/font/css/materialdesignicons.css'
 
+import tinymce from 'vue-tinymce-editor'
+
 const vuetify = createVuetify({
     components,
     directives,
@@ -37,5 +39,6 @@ const app = createApp(App)
 app.use(VueSocials)
 
 app.config.globalProperties.window = window
+app.component('tinymce', tinymce)
 
 app.mount('#app')

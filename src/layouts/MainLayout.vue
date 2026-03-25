@@ -71,7 +71,7 @@
             v-model="this.$store.state.prompt"
             :style="{height : this.$store.state.show_history || this.$store.state.screen_width < 960 ? '' : '68vh'}"
           ></v-textarea> -->
-          <froala 
+          <!-- <froala 
             id="edit" 
             :tag="'textarea'" 
             :config="config" 
@@ -79,8 +79,17 @@
             height="68vh"
             :style="{minHeight : '68vh'}"
           >
-          </froala>
+          </froala> -->
+
+          <!-- <tinymce id="d1" api-key="d1fowt1qg1b5b0zhq963qisa783lq0t8z7z0jk1cgyiruwsx" v-model="myPrompt"  :other_options="options" :plugins="['image']" toolbar1='image'></tinymce> -->
           
+
+           <Editor
+              api-key="d1fowt1qg1b5b0zhq963qisa783lq0t8z7z0jk1cgyiruwsx"
+              :init="options"
+              v-model="myPrompt"
+            />
+
           <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode', {scrollElement: () => this.scrollToElement()}); this.$store.state.prompt = ''"></v-btn>
           
           <!-- <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" /> -->
@@ -120,6 +129,8 @@ import Navbar from "@/components/Navbar.vue";
 import History from "@/components/History.vue";
 import Chat from "@/components/Chat.vue";
 
+import Editor from '@tinymce/tinymce-vue'
+
 // import Prism Editor
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
@@ -136,6 +147,77 @@ export default {
     width: window.innerWidth,
     code: 'console.log("Hello World")',
     openPopupProps: false,
+
+    options: {
+      menubar: false,
+      // statusbar: false,
+      toolbar: false,
+      plugins: 'image',
+      image_title: true,
+      automatic_uploads: true,
+      file_picker_types: 'image',
+      statusbar: 'custom_button',
+      // skin: 'borderless',
+      inline_boundaries: false,
+
+      setup: function(editor) {
+        editor.on('init', function() {
+          // Create a custom button element
+          var customButton = document.createElement('button');
+          customButton.textContent = 'My Status Button';
+          customButton.className = 'mce-widget mce-btn myMceButton'; // Apply TinyMCE button styling
+          customButton.innerHTML = '<i class="mce-ico mce-i-image"></i>'
+          customButton.onclick = function() {
+            editor.execCommand('mceImage');
+          };
+
+          // Find the status bar and append the button
+          var statusBar = editor.getContainer().querySelector('.mce-statusbar'); // For TinyMCE 6+
+          // For older versions, you might need to target a different class like '.mce-statusbar'
+          if (statusBar) {
+            statusBar.appendChild(customButton);
+          }
+        });
+      },
+
+      file_picker_callback: function (cb, value, meta) {
+      var input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'image/*');
+
+      /*
+        Note: In modern browsers input[type="file"] is functional without
+        even adding it to the DOM, but that might not be the case in some older
+        or quirky browsers like IE, so you might want to add it to the DOM
+        just in case, and visually hide it. And do not forget do remove it
+        once you do not need it anymore.
+      */
+
+      input.onchange = function () {
+        var file = this.files[0];
+
+        var reader = new FileReader();
+        reader.onload = function () {
+          /*
+            Note: Now we need to register the blob in TinyMCEs image blob
+            registry. In the next release this part hopefully won't be
+            necessary, as we are looking to handle it internally.
+          */
+          var id = 'blobid' + (new Date()).getTime();
+          var blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+          var base64 = reader.result.split(',')[1];
+          var blobInfo = blobCache.create(id, file, base64);
+          blobCache.add(blobInfo);
+
+          /* call the callback and populate the Title field with the file name */
+          cb(blobInfo.blobUri(), { title: file.name });
+        };
+        reader.readAsDataURL(file);
+      };
+
+      input.click();
+    },
+    },
 
     config: {
         events: {
@@ -154,11 +236,23 @@ export default {
       model: 'Edit Your Content Here!'
   }),
 
+  computed: {
+    myPrompt: {
+      get() {
+        return this.$store.state.prompt
+      },
+      set(newValue) {
+        console.log('newValue', newValue)
+        this.$store.state.prompt = newValue
+      }
+    }
+  },
   components: {
     Navbar,
     History,
     Chat,
-    PrismEditor
+    PrismEditor,
+    Editor
   },
   methods: {
       highlighter(code) {
@@ -248,11 +342,61 @@ export default {
         elHistory.scrollTo(0, elHistory.scrollHeight);
       }
     };
+  },
+  created() {
+    this.unwatch = this.$store.watch(
+      (state) => state.prompt, // Function that returns the value to watch
+      (newValue, oldValue) => {
+        console.log('Old Value:', oldValue);
+        console.log('New Value:', newValue);
+      },
+      // Optional deep: true option
+      { deep: true }
+    );
+  },
+  beforeDestroy() {
+    this.unwatch(); // Stop watching when the component is destroyed
   }
 };
 </script>
 
 <style lang="scss">
+  .myMceButton {
+    position: absolute !important;
+    top: 5px;
+    left: 13px;
+
+  }
+
+  .mce-branding {
+    display: none !important;
+  }
+
+  .mce-container {
+    border: 0px !important;
+  }
+
+  #mceu_1, #mceu_2, #mceu_3 {
+    border-radius: 20px;
+  }
+
+  #mceu_3 {
+    margin-left: 3px;
+  }
+
+  #mceu_0-body {
+    border: 1px solid gray;
+    border-radius: 20px;
+  }
+
+  #mceu_0 {
+    box-shadow: unset;
+  }
+
+  .mce-path-item, .mce-path .mce-divider {
+    color: white !important;
+  }
+
   .textfieldPrompt {
     max-width: 33.3333333333%;
     position: absolute;
@@ -326,7 +470,7 @@ export default {
 .buttonDefaultProps {
   position: absolute;
   z-index: 30;
-  bottom: 17px;
+  bottom: 9px;
   left: 52px;
   // border: 1px solid #333333;
   border-radius: 4px;
