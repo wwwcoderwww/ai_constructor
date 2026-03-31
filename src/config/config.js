@@ -9,9 +9,27 @@ export default {
 
     serverPath: 'http://127.0.0.1:8000',
     serverApi: 'http://127.0.0.1:8000/api',
-    imagePath: 'http://127.0.0.1:8000/showcases/images/'
+    imagePath: 'http://127.0.0.1:8000/showcases/images/',
 
     // serverPath: 'https://leadpushka.ru',
     // serverApi: 'https://leadpushka.ru/api',
-    // imagePath: 'https://leadpushka.ru/showcases/images/'
+    // imagePath: 'https://leadpushka.ru/showcases/images/',
+
+    // AI model configuration
+    // type: 'gradio' — uses Gradio client (gradioSpace required)
+    // type: 'custom' — uses streaming HTTP API (path required)
+    models: [
+        {
+            id: 1,
+            name: 'Qwen Coder (Gradio)',
+            type: 'gradio',
+            gradioSpace: 'Qwen/Qwen3-Coder-WebDev',
+        },
+        {
+            id: 2,
+            name: 'Custom Model',
+            type: 'custom',
+            path: 'http://127.0.0.1:8000/api/claude/stream',
+        }
+    ]
 }

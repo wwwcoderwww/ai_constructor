@@ -1,8 +1,9 @@
 import { createStore } from 'vuex'
 import axios from 'axios';
 import config from '@/config/config';
-import { Client } from "@gradio/client";
-import { convert, compile } from 'html-to-text';
+import { convert } from 'html-to-text';
+import { generateCode as gradioGenerateCode } from '@/services/gradioModel';
+import { generateCode as customGenerateCode } from '@/services/customModel';
 
 
 export default createStore({
@@ -13,11 +14,9 @@ export default createStore({
     show_mobil: 0,
     componentKey: 1,
     disable_send_button: 0,
-    model_id: 1,
+    model_id: 2,
     globalSpinner: 0,
-    models: [
-      {id: 1, name: 'Qwen/Qwen3-Coder-WebDev'}
-    ],
+    models: config.models,
     notifications: []
   },
   getters: {
@@ -37,7 +36,7 @@ export default createStore({
           state.id = response.data.id;
           state.history = response.data.history;
           state.user = response.data.user;
-          state.model_id = parseInt(response.data.model_id) ? parseInt(response.data.model_id) : parseInt(1);
+          state.model_id = parseInt(response.data.model_id) ? parseInt(response.data.model_id) : parseInt(2);
           state.name = response.data.name;
           state.prompt = response.data.prompt;
           state.status = response.data.status;
@@ -110,10 +109,11 @@ export default createStore({
           store.state.notifications.shift()
         }, 4000)
 
-        return 
+        return
       }
 
       store.state.disable_send_button = 1;
+      store.state.text = '';
 
       store.state.historyTitle = context.title
       let newHistory = {
@@ -131,16 +131,15 @@ export default createStore({
 
       store.state.prompt = ''
 
-      const client = await Client.connect(store.getters.getNameModelById[0].name);
-      const result = await client.predict("/generate_code", { 		
-              input_value: prompt, 		
-              system_prompt_input_value: "null", 
-      });
+      const model = store.getters.getNameModelById[0];
 
-      let code = result.data[0].value
-      code = code.slice(7)
-      code = code.slice(0, - 3)
-      store.state.text = code
+      // if (model.type === 'gradio') {
+      //   store.state.text = await gradioGenerateCode(prompt);
+      // } else {
+        await customGenerateCode(prompt, (chunk) => {
+          store.state.text = chunk;
+        }, store.state.id);
+      // }
 
       store.state.disable_send_button = 0;
     }

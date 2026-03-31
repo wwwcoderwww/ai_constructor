@@ -98,21 +98,21 @@
       </v-col>  
 
       <v-col cols="12" xm="12" :md="this.$store.state.collapse ? '7' : '11'" class="pa-2 border-sm viewField" :style="(!this.$store.state.show_history && this.$store.state.screen_width < 960) || this.$store.state.screen_width < 960 ? 'margin-top: 0' : ''">
-        <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="this.$store.state.text" v-if="!this.$store.state.show_code && !this.$store.state.disable_send_button"></iframe>
+        <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="this.$store.state.text" v-if="!this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text)"></iframe>
 
-        <prism-editor 
-          class="my-editor" 
+        <prism-editor
+          class="my-editor"
           :key="this.$store.state.componentKey"
           style="width: 100%;"
-          v-if="this.$store.state.show_code && !this.$store.state.disable_send_button"
-          v-model="this.$store.state.text" :highlight="highlighter" 
+          v-if="this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text)"
+          v-model="this.$store.state.text" :highlight="highlighter"
           line-numbers
         >
         </prism-editor>
 
 
         <v-progress-circular
-          v-if="this.$store.state.disable_send_button"
+          v-if="this.$store.state.disable_send_button && !this.$store.state.text"
           color="primary"
           indeterminate
           :size="53"
