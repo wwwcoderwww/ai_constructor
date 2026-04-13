@@ -3,7 +3,7 @@
         <v-col cols="12" md="3" sm="12" class="d-flex" style="margin-top: 15px">
             <v-btn icon="mdi-arrow-left" variant="plain" size="small" @click="window.history.back()"></v-btn>
 
-            <v-select align="center"
+            <!-- <v-select align="center"
                 label="Модель"
                 v-model="this.$store.state.model_id"
                 :items="this.$store.state.models"
@@ -13,7 +13,7 @@
                 density="compact"
                 class="select-model"
                 >
-            </v-select>
+            </v-select> -->
         </v-col>
 
         <v-col cols="12" sm="12" md="6" class="d-flex">

@@ -3,7 +3,7 @@ import axios from 'axios';
 import config from '@/config/config';
 import { convert } from 'html-to-text';
 import { generateCode as gradioGenerateCode } from '@/services/gradioModel';
-import { generateCode as customGenerateCode } from '@/services/customModel';
+import { generateCode as customGenerateCode, generateChatCode } from '@/services/customModel';
 
 
 export default createStore({
@@ -133,13 +133,15 @@ export default createStore({
 
       const model = store.getters.getNameModelById[0];
 
-      // if (model.type === 'gradio') {
-      //   store.state.text = await gradioGenerateCode(prompt);
-      // } else {
+      if (model.path && model.path.includes('chat')) {
+        await generateChatCode(prompt, (chunk) => {
+          store.state.text = chunk;
+        }, store.state.id);
+      } else {
         await customGenerateCode(prompt, (chunk) => {
           store.state.text = chunk;
         }, store.state.id);
-      // }
+      }
 
       store.state.disable_send_button = 0;
     }

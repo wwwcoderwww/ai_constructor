@@ -4,8 +4,14 @@ const modelConfig = config.models.find(m => m.type === 'custom');
 
 // Strips ```html...``` or ```...``` wrapper if present
 function stripMarkdownFences(code) {
-    const match = code.match(/^```[\w]*\n?([\s\S]*?)\n?```$/s);
-    return match ? match[1] : code;
+    let lines = code.split('\n');
+    if (lines.length > 0 && lines[0].startsWith('```')) {
+        lines = lines.slice(1);
+    }
+    if (lines.length > 0 && lines[lines.length - 1].trim() === '```') {
+        lines = lines.slice(0, -1);
+    }
+    return lines.join('\n');
 }
 
 // Calls onChunk(currentContent) each time a new portion arrives.
@@ -71,4 +77,23 @@ export async function generateCode(prompt, onChunk, ai_landing_id) {
     }
 
     return stripMarkdownFences(lastContent);
+}
+
+export async function generateChatCode(prompt, onChunk, ai_landing_id) {
+    const response = await fetch(modelConfig.path, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt, ai_landing_id }),
+    });
+console.log('111111', response)
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = stripMarkdownFences(data.content);
+    onChunk(content);
+    return content;
 }
