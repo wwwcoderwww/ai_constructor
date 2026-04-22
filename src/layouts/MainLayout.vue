@@ -98,7 +98,7 @@
       </v-col>  
 
       <v-col cols="12" xm="12" :md="this.$store.state.collapse ? '7' : '11'" class="pa-2 border-sm viewField" :style="(!this.$store.state.show_history && this.$store.state.screen_width < 960) || this.$store.state.screen_width < 960 ? 'margin-top: 0' : ''">
-        <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="this.$store.state.text" v-if="!this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text)"></iframe>
+        <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="iframeContent" v-if="!this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text)"></iframe>
 
         <prism-editor
           class="my-editor"
@@ -237,6 +237,56 @@ export default {
   }),
 
   computed: {
+    iframeContent() {
+      const text = this.$store.state.text;
+      if (!text) return '';
+
+      const trimmed = text.trim();
+      // Return plain HTML as-is
+      if (trimmed.startsWith('<!') || trimmed.toLowerCase().startsWith('<html')) {
+        return text;
+      }
+      // Not a Vue SFC if there's no <template> block
+      if (!trimmed.includes('<template>')) {
+        return text;
+      }
+
+      const templateMatch = text.match(/<template>([\s\S]*)<\/template>/);
+      const scriptMatch = text.match(/<script(?!\s+src)[^>]*>([\s\S]*?)<\/script>/);
+      const styleMatch = text.match(/<style[^>]*>([\s\S]*?)<\/style>/);
+
+      const template = templateMatch ? templateMatch[1].trim() : '<div></div>';
+      const script = scriptMatch ? scriptMatch[1].trim() : '';
+      const style = styleMatch ? styleMatch[1].trim() : '';
+
+      const processedScript = script
+        .replace(/^\s*import\s+.+from\s+['"].+['"]\s*;?\s*$/gm, '')
+        .replace(/export\s+default\s+/, 'const __component = ');
+
+      return [
+        '<!DOCTYPE html><html><head>',
+        '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        '<script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>',
+        '<style>' + style + '<\/style>',
+        '</head><body>',
+        '<div id="app"></div>',
+        '<script>',
+        '(function() {',
+        '  try {',
+        processedScript,
+        '    var __opts = typeof __component !== "undefined" ? __component : {};',
+        '    __opts.template = ' + JSON.stringify(template) + ';',
+        '    Vue.createApp(__opts).mount("#app");',
+        '  } catch(e) {',
+        '    document.body.innerHTML = "<pre style=\'color:red\'>" + e.message + "</pre>";',
+        '  }',
+        '})();',
+        '<\/script>',
+        '</body></html>'
+      ].join('\n');
+    },
+
     myPrompt: {
       get() {
         return this.$store.state.prompt

@@ -17,7 +17,10 @@ export default createStore({
     model_id: 2,
     globalSpinner: 0,
     models: config.models,
-    notifications: []
+    notifications: [],
+    text: '',
+    prompt: '',
+    history: []
   },
   getters: {
     getNameModelById (state) {
