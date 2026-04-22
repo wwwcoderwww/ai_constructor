@@ -87,13 +87,20 @@ export async function generateChatCode(prompt, onChunk, ai_landing_id) {
         },
         body: JSON.stringify({ prompt, ai_landing_id }),
     });
-console.log('111111', response)
+
     if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
     }
 
     const data = await response.json();
+
+    if (!data.content) {
+        throw new Error(data.error || 'Пустой ответ от модели');
+    }
+console.log('111', data)
     const content = stripMarkdownFences(data.content);
+    console.log('222', content)
     onChunk(content);
+    console.log('333', content)
     return content;
 }

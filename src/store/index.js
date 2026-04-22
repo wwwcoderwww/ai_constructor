@@ -136,17 +136,28 @@ export default createStore({
 
       const model = store.getters.getNameModelById[0];
 
-      if (model.path && model.path.includes('chat')) {
-        await generateChatCode(prompt, (chunk) => {
-          store.state.text = chunk;
-        }, store.state.id);
-      } else {
-        await customGenerateCode(prompt, (chunk) => {
-          store.state.text = chunk;
-        }, store.state.id);
+      try {
+        if (model.format === 'chat') {
+          console.log('chat')
+          await generateChatCode(prompt, (chunk) => {
+            store.state.text = chunk;
+          }, store.state.id);
+        } else {
+          await customGenerateCode(prompt, (chunk) => {
+            store.state.text = chunk;
+          }, store.state.id);
+        }
+      } catch (err) {
+        console.error('getCode error', err);
+        store.state.notifications.push({
+          title: 'Ошибка',
+          type: 'error',
+          text: err.message || 'Не удалось получить ответ от модели'
+        });
+        setTimeout(() => { store.state.notifications.shift(); }, 4000);
+      } finally {
+        store.state.disable_send_button = 0;
       }
-
-      store.state.disable_send_button = 0;
     }
     
   },
