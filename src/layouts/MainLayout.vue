@@ -98,7 +98,12 @@
       </v-col>  
 
       <v-col cols="12" xm="12" :md="this.$store.state.collapse ? '7' : '11'" class="pa-2 border-sm viewField" :style="(!this.$store.state.show_history && this.$store.state.screen_width < 960) || this.$store.state.screen_width < 960 ? 'margin-top: 0' : ''">
-        <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="iframeContent" v-if="!this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text)"></iframe>
+        <div style="position: relative; width: 100%; height: 100%;" v-if="!this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text)">
+          <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="iframeContent"></iframe>
+          <div v-if="this.$store.state.disable_send_button" class="iframeStreamOverlay">
+            <v-progress-circular color="primary" indeterminate :size="53" :width="9"></v-progress-circular>
+          </div>
+        </div>
 
         <prism-editor
           class="my-editor"
@@ -111,14 +116,6 @@
         </prism-editor>
 
 
-        <v-progress-circular
-          v-if="this.$store.state.disable_send_button && !this.$store.state.text"
-          color="primary"
-          indeterminate
-          :size="53"
-          :width="9"
-          style="margin: auto; margin-top: 49%;"
-        ></v-progress-circular>
       </v-col> 
     </v-row>    
   </v-container>
@@ -495,6 +492,19 @@ export default {
   .resultIframe {
     width: 100%;
     height: 100%;
+  }
+
+  .iframeStreamOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
   }
 
   .resultIframeMobilSize {
