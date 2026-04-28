@@ -16,13 +16,13 @@ function stripMarkdownFences(code) {
 
 // Calls onChunk(currentContent) each time a new portion arrives.
 // Returns the final accumulated content.
-export async function generateCode(prompt, onChunk, ai_landing_id) {
-    const response = await fetch(modelConfig.path, {
+export async function generateCode(prompt, onChunk, ai_landing_id, endpoint, extraBody) {
+    const response = await fetch(endpoint || modelConfig.path, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt, ai_landing_id }),
+        body: JSON.stringify({ prompt, ai_landing_id, ...(extraBody || {}) }),
     });
 
     if (!response.ok) {

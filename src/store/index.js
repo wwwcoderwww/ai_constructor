@@ -143,9 +143,35 @@ export default createStore({
             store.state.text = chunk;
           }, store.state.id);
         } else {
-          await customGenerateCode(prompt, (chunk) => {
-            store.state.text = chunk;
-          }, store.state.id);
+          const basePath = config.serverApi + '/claude/stream';
+
+          // Step 1: Architect — streamed into a new chat bubble
+          const archIndex = store.state.history.length;
+          store.state.history.push({
+            text: '',
+            title: '',
+            created_at: new Date(),
+            is_question: 0
+          });
+          if (context && context.scrollElement) {
+            setTimeout(() => context.scrollElement(), 150);
+          }
+
+          const architectResult = await customGenerateCode(
+            prompt,
+            (chunk) => { store.state.history[archIndex].text = chunk; },
+            store.state.id,
+            basePath + '/architect'
+          );
+
+          // Step 2: Frontend — streamed into the iframe, fed by architect output
+          await customGenerateCode(
+            prompt,
+            (chunk) => { store.state.text = chunk; },
+            store.state.id,
+            basePath + '/frontend',
+            { architect_content: architectResult }
+          );
         }
       } catch (err) {
         console.error('getCode error', err);

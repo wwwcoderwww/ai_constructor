@@ -79,11 +79,9 @@ export default {
             return text ? convert(text.replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '')).slice(0, 50) : '';
         },
         text(title, text) {
-            // if (title) {
-            //     return text
-            // }
-
-            return text ? convert(text).slice(0, 250).replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '') : '';
+            if (!text) return '';
+            const cleaned = convert(text).replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '');
+            return this.history.is_question ? cleaned.slice(0, 250) : cleaned;
         }
     }
 }

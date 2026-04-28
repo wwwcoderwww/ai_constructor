@@ -32,6 +32,7 @@ export default {
             // format: 'chat',   // 'chat' = JSON response, 'stream' = SSE
             // path: 'http://127.0.0.1:8000/api/claude/chat',
             path: 'http://127.0.0.1:8000/api/claude/stream',
+            // path: 'https://leadpushka.ru/api/claude/stream',
             format: 'stream',
         }
     ]
