@@ -1,11 +1,22 @@
 <template>
-     <v-card 
+     <v-card
         :variant="history.is_question ? 'tonal' : 'outlined'"
         class="mt-4"
         :class="history.is_question ? 'float-right' : 'float-left border-sm'"
         style="width: 85%; text-align: start;"
     >
-    <v-card-text style="text-align: left" class="chat-item">{{text(history.title, history.text)}}</v-card-text>
+    <v-card-text style="text-align: left; position: relative;" class="chat-item" :class="{ 'has-fold-btn': !history.is_question && isLong }">
+        <v-btn
+            v-if="!history.is_question && isLong"
+            :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+            variant="outlined"
+            size="x-small"
+            rounded="md"
+            class="fold-btn"
+            @click="expanded = !expanded"
+        ></v-btn>
+        {{displayText}}
+    </v-card-text>
         <div class="hourAgo">{{getHourAgo(history.created_at)}} часов назад</div>
         <div style="text-align: left; padding-left: 9px; padding-bottom: 3px; font-size: 12px;">{{dateTime(history.created_at)}}</div>
         <v-card-actions class="float-right" style="position: absolute; right: -3px; bottom: -10px" v-if="history.is_question">
@@ -27,6 +38,11 @@ export default {
         scrollToElement: {
         }
     },
+    data() {
+        return {
+            expanded: false,
+        };
+    },
     computed: {
         history: {
             get() {
@@ -40,6 +56,24 @@ export default {
                 };
                 this.$store.commit("updateCard", payload);
             },
+        },
+        cleanedText() {
+            if (!this.history.text) return '';
+            return convert(this.history.text)
+                .replace('Powered by Froala Editor', '')
+                .replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '');
+        },
+        isLong() {
+            return this.cleanedText.length > 250;
+        },
+        displayText() {
+            if (this.history.is_question) {
+                return this.cleanedText.slice(0, 250);
+            }
+            if (this.isLong && !this.expanded) {
+                return this.cleanedText.slice(0, 250) + '…';
+            }
+            return this.cleanedText;
         },
     },
     methods: {
@@ -78,11 +112,6 @@ export default {
 
             return text ? convert(text.replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '')).slice(0, 50) : '';
         },
-        text(title, text) {
-            if (!text) return '';
-            const cleaned = convert(text).replace('Powered by Froala Editor', '').replace('[https://www.froala.com/wysiwyg-editor?pb=1]', '');
-            return this.history.is_question ? cleaned.slice(0, 250) : cleaned;
-        }
     }
 }
 </script>
@@ -101,7 +130,7 @@ export default {
         }
 
             button {
-                height: 21px !important;
+                height: 19px !important;
                 padding: 0 3px !important;
         }
     }
@@ -116,5 +145,19 @@ export default {
     .v-card .v-card-text {
         margin-top: -5px;
         margin-bottom: -5px;
+    }
+    .fold-btn {
+        position: absolute !important;
+        top: 10px;
+        right: 4px;
+        z-index: 1;
+        width: 32px !important;
+        height: 22px !important;
+        min-width: 0 !important;
+        border-radius: 6px !important;
+        float: right;
+    }
+    .chat-item.has-fold-btn {
+        padding-top: 34px !important;
     }
 </style>

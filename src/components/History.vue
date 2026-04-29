@@ -110,7 +110,7 @@ export default {
         }
 
             button {
-                height: 21px !important;
+                height: 19px !important;
                 padding: 0 3px !important;
         }
     }
