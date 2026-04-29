@@ -66,6 +66,34 @@ export default createStore({
       })
     },
 
+    clearHistory({state}) {
+      axios.post(config.serverApi + '/ai/landings/clear_history', {
+        a_i_landing_id: state.id
+      })
+      .then(function (response) {
+        state.history = [];
+        state.notifications.push({
+          title: "История очищена",
+          type: "success",
+          text: response.data
+        })
+        setTimeout(() => {
+          state.notifications.shift()
+        }, 2000)
+      })
+      .catch(function (error) {
+        console.log(error);
+        state.notifications.push({
+          title: "Ошибка",
+          type: "error",
+          text: typeof(error.response) != 'undefined' ? error.response.data : 'Не удалось очистить историю!'
+        })
+        setTimeout(() => {
+          state.notifications.shift()
+        }, 4000)
+      });
+    },
+
     saveLanding({state}) {
       axios.post(config.serverApi + '/ai/landings/update', {
         id: state.id,

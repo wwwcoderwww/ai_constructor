@@ -18,7 +18,15 @@
 
         <v-col cols="12" sm="12" md="6" class="d-flex">
                 <v-btn icon="mdi-history" size="small" variant="plain" class="px-0" @click="showHistory"></v-btn>
-                
+
+                <v-btn
+                    prepend-icon="mdi-delete-sweep"
+                    variant="plain"
+                    size="small"
+                    class="clear-history-btn"
+                    @click="clearHistory"
+                >Очистить историю</v-btn>
+
                 <v-dialog max-width="500">
                     <template v-slot:activator="{ props: activatorProps }">           
                         <v-btn v-bind="activatorProps" icon="mdi-help-circle-outline" variant="plain" size="small"></v-btn>
@@ -109,6 +117,11 @@ export default {
 
             this.scrollToElementMethod();
         },
+        clearHistory() {
+            if (confirm('Очистить историю чата?')) {
+                this.$store.dispatch('clearHistory');
+            }
+        },
         shareContent() {
             if (navigator.share) {
             navigator.share({
@@ -153,6 +166,10 @@ export default {
          font-size: 12px;
         text-transform: capitalize;
         letter-spacing: 1px;
+    }
+
+    .clear-history-btn {
+        margin-top: 6px;
     }
 
 </style>
