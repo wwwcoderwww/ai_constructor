@@ -90,10 +90,18 @@
               v-model="myPrompt"
             />
 
-          <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" @click="this.$store.dispatch('getCode', {scrollElement: () => this.scrollToElement()}); this.$store.state.prompt = ''"></v-btn>
-          
+          <v-btn icon="mdi-arrow-up" :disabled="this.$store.state.disable_send_button" class="px-0 bg-primary buttonSend" :class="this.$store.state.discussMode ? 'discussActive' : ''" @click="this.$store.dispatch('getCode', {scrollElement: () => this.scrollToElement()}); this.$store.state.prompt = ''"></v-btn>
+
           <!-- <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" /> -->
           <button @click="openPopupProps = true" class="buttonDefaultProps"><v-icon size="small" icon="mdi-cursor-default-click"></v-icon>Выбрать промпт</button>
+          <button
+            class="buttonDiscuss"
+            :class="this.$store.state.discussMode ? 'discussActive' : ''"
+            @click="this.$store.state.discussMode = this.$store.state.discussMode ? 0 : 1"
+          >
+            <v-icon size="small" icon="mdi-message-text-outline"></v-icon>
+            Обсудить
+          </button>
         </div>
       </v-col>  
 
@@ -474,6 +482,41 @@ export default {
     right: 7px;
     top: 7px;
     z-index: 9999;
+
+    &.discussActive {
+      background-color: #c4b1f5 !important;
+      opacity: 0.85;
+    }
+  }
+
+  .buttonDiscuss {
+    position: absolute;
+    z-index: 30;
+    bottom: 9px;
+    right: 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #7c3aed;
+    background-color: #f0e7fe;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    .v-icon {
+      color: #7c3aed;
+    }
+
+    &.discussActive {
+      background-color: #faf5ff;
+      color: #c4b1f5;
+
+      .v-icon {
+        color: #c4b1f5;
+      }
+    }
   }
 
   .viewField {

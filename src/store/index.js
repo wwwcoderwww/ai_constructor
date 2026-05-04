@@ -20,7 +20,8 @@ export default createStore({
     notifications: [],
     text: '',
     prompt: '',
-    history: []
+    history: [],
+    discussMode: 0
   },
   getters: {
     getNameModelById (state) {
@@ -165,7 +166,25 @@ export default createStore({
       const model = store.getters.getNameModelById[0];
 
       try {
-        if (model.format === 'chat') {
+        if (store.state.discussMode) {
+          const discussIndex = store.state.history.length;
+          store.state.history.push({
+            text: '',
+            title: '',
+            created_at: new Date(),
+            is_question: 0
+          });
+          if (context && context.scrollElement) {
+            setTimeout(() => context.scrollElement(), 150);
+          }
+
+          await customGenerateCode(
+            prompt,
+            (chunk) => { store.state.history[discussIndex].text = chunk; },
+            store.state.id,
+            config.serverApi + '/claude/discusion'
+          );
+        } else if (model.format === 'chat') {
           console.log('chat')
           await generateChatCode(prompt, (chunk) => {
             store.state.text = chunk;
