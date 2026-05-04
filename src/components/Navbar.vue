@@ -19,13 +19,7 @@
         <v-col cols="12" sm="12" md="6" class="d-flex">
                 <v-btn icon="mdi-history" size="small" variant="plain" class="px-0" @click="showHistory"></v-btn>
 
-                <v-btn
-                    prepend-icon="mdi-delete-sweep"
-                    variant="plain"
-                    size="small"
-                    class="clear-history-btn"
-                    @click="clearHistory"
-                >Очистить историю</v-btn>
+                <v-btn icon="mdi-trash-can-outline" variant="plain" size="small" @click="clearHistory"></v-btn>
 
                 <v-dialog max-width="500">
                     <template v-slot:activator="{ props: activatorProps }">           
@@ -166,10 +160,6 @@ export default {
          font-size: 12px;
         text-transform: capitalize;
         letter-spacing: 1px;
-    }
-
-    .clear-history-btn {
-        margin-top: 6px;
     }
 
 </style>
