@@ -484,7 +484,7 @@ export default {
     z-index: 9999;
 
     &.discussActive {
-      background-color: #c4b1f5 !important;
+      background-color: #60a5fa !important;
       opacity: 0.85;
     }
   }
@@ -492,29 +492,29 @@ export default {
   .buttonDiscuss {
     position: absolute;
     z-index: 30;
-    bottom: 9px;
+    bottom: 7px;
     right: 9px;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 500;
-    color: #7c3aed;
-    background-color: #f0e7fe;
+    gap: 3px;
+    padding: 3px 4px 2px 4px;;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 400;
+    color: #333333;
+    background-color: #e9e9e9;
     transition: background-color 0.15s ease, color 0.15s ease;
 
     .v-icon {
-      color: #7c3aed;
+      color: #333333;
     }
 
     &.discussActive {
-      background-color: #faf5ff;
-      color: #c4b1f5;
+      background-color: #f5f5f5;
+      color: #888888;
 
       .v-icon {
-        color: #c4b1f5;
+        color: #888888;
       }
     }
   }
@@ -574,12 +574,12 @@ export default {
 .buttonDefaultProps {
   position: absolute;
   z-index: 30;
-  bottom: 9px;
+  bottom: 7px;
   left: 52px;
   // border: 1px solid #333333;
   border-radius: 4px;
   color: #333333;
-  padding: 1px;
+  padding: 2px;
   padding-right: 4px;
   font-size: 9px;
   background-color: #e9e9e9; 
