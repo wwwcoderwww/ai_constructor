@@ -164,6 +164,7 @@ export default {
       statusbar: 'custom_button',
       // skin: 'borderless',
       inline_boundaries: false,
+      content_style: 'body { font-family: Avenir, Helvetica, Arial, sans-serif; font-weight: 300; }',
 
       setup: function(editor) {
         editor.on('init', function() {
