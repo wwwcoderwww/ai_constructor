@@ -5,7 +5,7 @@
         :class="history.is_question ? 'float-right' : 'float-left border-sm'"
         style="width: 85%; text-align: start;"
     >
-    <v-card-text style="text-align: left; position: relative;" class="chat-item" :class="{ 'has-fold-btn': !history.is_question && isLong }">
+    <v-card-text style="text-align: left; position: relative;" class="chat-item" :class="{ 'has-fold-btn': !history.is_question && isLong, 'answer-text': !history.is_question }">
         <v-btn
             v-if="!history.is_question && isLong"
             :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
@@ -159,5 +159,9 @@ export default {
     }
     .chat-item.has-fold-btn {
         padding-top: 34px !important;
+    }
+    .chat-item.answer-text {
+        white-space: pre-wrap;
+        word-break: break-word;
     }
 </style>
