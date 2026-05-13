@@ -79,8 +79,8 @@ export async function generateCode(prompt, onChunk, ai_landing_id, endpoint, ext
     return stripMarkdownFences(lastContent);
 }
 
-export async function generateChatCode(prompt, onChunk, ai_landing_id) {
-    const response = await fetch(modelConfig.path, {
+export async function generateChatCode(prompt, onChunk, ai_landing_id, endpoint) {
+    const response = await fetch(endpoint || modelConfig.path, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

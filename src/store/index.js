@@ -178,7 +178,7 @@ export default createStore({
             setTimeout(() => context.scrollElement(), 150);
           }
 
-          await customGenerateCode(
+          await generateChatCode(
             prompt,
             (chunk) => { store.state.history[discussIndex].text = chunk; },
             store.state.id,
