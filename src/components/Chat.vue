@@ -5,9 +5,9 @@
         :class="history.is_question ? 'float-right' : 'float-left border-sm'"
         style="width: 85%; text-align: start;"
     >
-    <v-card-text style="text-align: left; position: relative;" class="chat-item" :class="{ 'has-fold-btn': !history.is_question && isLong, 'answer-text': !history.is_question, 'collapsed': !history.is_question && isLong && !expanded }">
+    <v-card-text style="text-align: left; position: relative;" class="chat-item" :class="{ 'has-fold-btn': !history.is_question && isLong && !isStreaming, 'answer-text': !history.is_question, 'collapsed': !history.is_question && isLong && !expanded && !isStreaming }">
         <v-btn
-            v-if="!history.is_question && isLong"
+            v-if="!history.is_question && isLong && !isStreaming"
             :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
             variant="outlined"
             size="x-small"
@@ -47,6 +47,23 @@ export default {
             expanded: false,
         };
     },
+    watch: {
+        // When live generation finishes, keep the just-streamed answer
+        // fully open instead of abruptly collapsing it to 240px.
+        isStreaming(now, prev) {
+            if (prev && !now) {
+                this.expanded = true;
+            }
+        },
+        // Follow the answer as it streams in: scroll to the bottom on each
+        // text update so the latest content stays visible instead of being
+        // hidden behind the prompt input.
+        'history.text'() {
+            if (this.isStreaming && this.scrollToElement) {
+                this.$nextTick(() => this.scrollToElement());
+            }
+        },
+    },
     computed: {
         history: {
             get() {
@@ -77,6 +94,11 @@ export default {
         },
         isLong() {
             return this.cleanedText.length > 250;
+        },
+        isStreaming() {
+            return !this.history.is_question
+                && this.$store.state.disable_send_button
+                && this.number === this.$store.state.history.length - 1;
         },
         displayText() {
             if (this.history.is_question) {

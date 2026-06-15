@@ -192,8 +192,9 @@ export default createStore({
         } else {
           const basePath = config.serverApi + '/claude/stream';
 
-          // Step 1: Architect — streamed into a new chat bubble
-          const archIndex = store.state.history.length;
+          // Step 0: Prearchitector — fast interactive reply that decides what to run next.
+          // Its reply is always shown in the chat; its `target` drives the heavy pipeline.
+          const preIndex = store.state.history.length;
           store.state.history.push({
             text: '',
             title: '',
@@ -204,21 +205,57 @@ export default createStore({
             setTimeout(() => context.scrollElement(), 150);
           }
 
-          const architectResult = await customGenerateCode(
-            prompt,
-            (chunk) => { store.state.history[archIndex].text = chunk; },
-            store.state.id,
-            basePath + '/architect'
-          );
+          const { data: pre } = await axios.get(config.serverApi + '/claude/prearchitector', {
+            params: { ai_landing_id: store.state.id, prompt }
+          });
 
-          // Step 2: Frontend — streamed into the iframe, fed by architect output
-          await customGenerateCode(
-            prompt,
-            (chunk) => { store.state.text = chunk; },
-            store.state.id,
-            basePath + '/frontend',
-            { architect_content: architectResult }
-          );
+          // Always show the short reply to the user.
+          store.state.history[preIndex].text = pre.reply || '';
+          if (context && context.scrollElement) {
+            setTimeout(() => context.scrollElement(), 150);
+          }
+
+          const target = pre.target;
+
+          if (target === 'architect') {
+            // Step 1: Architect — streamed into a new chat bubble
+            const archIndex = store.state.history.length;
+            store.state.history.push({
+              text: '',
+              title: '',
+              created_at: new Date(),
+              is_question: 0
+            });
+            if (context && context.scrollElement) {
+              setTimeout(() => context.scrollElement(), 150);
+            }
+
+            const architectResult = await customGenerateCode(
+              prompt,
+              (chunk) => { store.state.history[archIndex].text = chunk; },
+              store.state.id,
+              basePath + '/architect'
+            );
+
+            // Step 2: Frontend — streamed into the iframe, fed by architect output
+            await customGenerateCode(
+              prompt,
+              (chunk) => { store.state.text = chunk; },
+              store.state.id,
+              basePath + '/frontend',
+              { architect_content: architectResult }
+            );
+          } else if (target === 'frontend') {
+            // Frontend agent directly, fed by the original prompt
+            await customGenerateCode(
+              prompt,
+              (chunk) => { store.state.text = chunk; },
+              store.state.id,
+              basePath + '/frontend'
+            );
+          }
+          // target '', 'chat', 'backend' — nothing more to run.
+          // ('backend' is already queued server-side via backend_job_queued.)
         }
       } catch (err) {
         console.error('getCode error', err);
