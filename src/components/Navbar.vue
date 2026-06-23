@@ -1,19 +1,21 @@
 <template>
-    <v-row no-gutters  justify="space-between" align="center" class="border-md-b-sm">
-        <v-col cols="12" md="3" sm="12" class="d-flex" style="margin-top: 15px">
+    <v-row no-gutters  justify="space-between" align="center" class="border-md-b-sm navbar-row">
+        <v-col cols="12" md="3" sm="12" class="d-flex align-center">
             <v-btn icon="mdi-arrow-left" variant="plain" size="small" @click="window.history.back()"></v-btn>
 
-            <!-- <v-select align="center"
-                label="Модель"
-                v-model="this.$store.state.model_id"
-                :items="this.$store.state.models"
-                item-title="name"
-                item-value="id"
+            <span class="niche-label mr-2">Ниша</span>
+
+            <v-select align="center"
+                :model-value="this.$store.state.niche"
+                @update:model-value="onNicheChange"
+                :items="this.$store.state.niches"
+                item-title="label"
+                item-value="key"
                 variant="outlined"
                 density="compact"
+                hide-details
                 class="select-model"
-                >
-            </v-select> -->
+            ></v-select>
         </v-col>
 
         <v-col cols="12" sm="12" md="6" class="d-flex">
@@ -116,6 +118,11 @@ export default {
                 this.$store.dispatch('clearHistory');
             }
         },
+        onNicheChange(niche) {
+            if (niche && niche !== this.$store.state.niche) {
+                this.$store.dispatch('saveNiche', niche);
+            }
+        },
         shareContent() {
             if (navigator.share) {
             navigator.share({
@@ -148,12 +155,22 @@ export default {
 </script>
 
 <style lang="scss">
+    .navbar-row {
+        padding-top: 15px;
+    }
+
     .select-model {
         max-width: 200px;
 
         @media only screen and (max-width: 960px) {
             max-width: 85%;
         }
+    }
+
+    .niche-label {
+        font-size: 14px;
+        white-space: nowrap;
+        color: rgba(0, 0, 0, 0.7);
     }
     
     .v-btn__content {

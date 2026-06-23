@@ -5,9 +5,9 @@
         :class="history.is_question ? 'float-right' : 'float-left border-sm'"
         style="width: 85%; text-align: start;"
     >
-    <v-card-text style="text-align: left; position: relative;" class="chat-item" :class="{ 'has-fold-btn': !history.is_question && isLong && !isStreaming, 'answer-text': !history.is_question, 'collapsed': !history.is_question && isLong && !expanded && !isStreaming }">
+    <v-card-text style="text-align: left; position: relative;" class="chat-item" :class="{ 'has-fold-btn': !history.is_question && isLong, 'answer-text': !history.is_question, 'collapsed': !history.is_question && isLong && !expanded }">
         <v-btn
-            v-if="!history.is_question && isLong && !isStreaming"
+            v-if="!history.is_question && isLong"
             :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
             variant="outlined"
             size="x-small"
@@ -40,6 +40,10 @@ export default {
             type: Number,
         },
         scrollToElement: {
+        },
+        // Scroll-to-bottom that respects the user's manual scroll position
+        // (only follows when already near the bottom).
+        followScroll: {
         }
     },
     data() {
@@ -48,19 +52,20 @@ export default {
         };
     },
     watch: {
-        // When live generation finishes, keep the just-streamed answer
-        // fully open instead of abruptly collapsing it to 240px.
-        isStreaming(now, prev) {
-            if (prev && !now) {
+        // Keep the answer fully open while it streams in (so it stays
+        // readable) without removing the fold button — the user can still
+        // collapse it manually, and that choice is respected afterwards.
+        isStreaming(now) {
+            if (now) {
                 this.expanded = true;
             }
         },
-        // Follow the answer as it streams in: scroll to the bottom on each
-        // text update so the latest content stays visible instead of being
-        // hidden behind the prompt input.
+        // Follow the answer as it streams in, but only when the user is
+        // already at the bottom. If they scrolled up to read earlier text,
+        // don't yank them back down.
         'history.text'() {
-            if (this.isStreaming && this.scrollToElement) {
-                this.$nextTick(() => this.scrollToElement());
+            if (this.isStreaming && this.followScroll) {
+                this.$nextTick(() => this.followScroll());
             }
         },
     },

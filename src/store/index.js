@@ -21,7 +21,10 @@ export default createStore({
     text: '',
     prompt: '',
     history: [],
-    discussMode: 0
+    discussMode: 0,
+    niche: '',
+    niche_locked: 0,
+    niches: []
   },
   getters: {
     getNameModelById (state) {
@@ -46,6 +49,9 @@ export default createStore({
           state.status = response.data.status;
           state.text = response.data.text;
           state.token = response.data.token;
+          state.niche = response.data.niche || '';
+          state.niche_locked = response.data.niche_locked || 0;
+          state.niches = response.data.niches || [];
         }
         console.log('getData', state);
       })
@@ -90,6 +96,36 @@ export default createStore({
           text: typeof(error.response) != 'undefined' ? error.response.data : 'Не удалось очистить историю!'
         })
         setTimeout(() => {
+          state.notifications.shift()
+        }, 4000)
+      });
+    },
+
+    saveNiche({state}, niche) {
+      state.niche = niche;
+      axios.post(config.serverApi + '/ai/landings/update-niche', {
+        id: state.id,
+        niche: niche
+      })
+      .then(function (response) {
+        state.niche_locked = 1;
+        state.notifications.push({
+          title: "Ниша обновлена",
+          type: "success",
+          text: response.data
+        })
+        setTimeout(()=>{
+          state.notifications.shift()
+        }, 2000)
+      })
+      .catch(function (error) {
+        console.log(error);
+        state.notifications.push({
+          title: "Ошибка",
+          type: "error",
+          text: typeof(error.response) != 'undefined' ? error.response.data : 'Не удалось обновить нишу!'
+        })
+        setTimeout(()=>{
           state.notifications.shift()
         }, 4000)
       });
@@ -145,7 +181,11 @@ export default createStore({
       }
 
       store.state.disable_send_button = 1;
-      store.state.text = '';
+      // В режиме общения ответ пишется в history, а сгенерированный HTML (text)
+      // нужно сохранить — очищаем его только когда будем генерировать заново.
+      if (!store.state.discussMode) {
+        store.state.text = '';
+      }
 
       store.state.historyTitle = context.title
       let newHistory = {

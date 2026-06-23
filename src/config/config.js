@@ -7,13 +7,13 @@ export default {
       toolbar: "styleselect fontselect fontsizeselect | forecolor backcolor | insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image'"
     },
 
-    // serverPath: 'http://127.0.0.1:8000',
-    // serverApi: 'http://127.0.0.1:8000/api',
-    // imagePath: 'http://127.0.0.1:8000/showcases/images/',
+    serverPath: 'http://127.0.0.1:8000',
+    serverApi: 'http://127.0.0.1:8000/api',
+    imagePath: 'http://127.0.0.1:8000/showcases/images/',
 
-    serverPath: 'https://leadpushka.ru',
-    serverApi: 'https://leadpushka.ru/api',
-    imagePath: 'https://leadpushka.ru/showcases/images/',
+    // serverPath: 'https://leadpushka.ru',
+    // serverApi: 'https://leadpushka.ru/api',
+    // imagePath: 'https://leadpushka.ru/showcases/images/',
 
     // AI model configuration
     // type: 'gradio' — uses Gradio client (gradioSpace required)
@@ -31,8 +31,8 @@ export default {
             type: 'custom',
             // format: 'chat',   // 'chat' = JSON response, 'stream' = SSE
             // path: 'http://127.0.0.1:8000/api/claude/chat',
-            // path: 'http://127.0.0.1:8000/api/claude/stream',
-            path: 'https://leadpushka.ru/api/claude/stream',
+            path: 'http://127.0.0.1:8000/api/claude/stream',
+            // path: 'https://leadpushka.ru/api/claude/stream',
             format: 'stream',
         }
     ]

@@ -53,7 +53,7 @@
       <v-col cols="12" xm="12" md="4" class="pa-2 " align-self="end" style="display: flex; flex-direction: column; " v-if="this.$store.state.collapse">
         <div class="chatWrap" ref="bottomElementRef" v-if="this.$store.state.show_history" :style="{marginBottom : (!(this.$store.state.screen_width < 960) ? '173px' : '15px')}">
           <div v-for="(item, index) in this.$store.state.history" :key="index">
-            <Chat :scrollToElement="() => this.scrollToElement()" :key="this.$store.state.componentKey" :number="index" />
+            <Chat :scrollToElement="() => this.scrollToElement()" :followScroll="() => this.scrollToElementIfAtBottom()" :key="this.$store.state.componentKey" :number="index" />
           </div>
         </div>
          <div class="chatWrap" ref="bottomElementHistoryRef" v-if="!this.$store.state.show_history" :style="{marginBottom : (!(this.$store.state.screen_width < 960) ? '173px' : '15px')}">
@@ -345,6 +345,22 @@ export default {
 
         if (elHistory) {
           console.log('elHistory', elHistory.scrollHeight)
+          elHistory.scrollTo(0, elHistory.scrollHeight);
+        }
+      },
+      // Like scrollToElement, but only follows the bottom when the user is
+      // already near it. Used while text streams in so manual scroll-up
+      // (to re-read earlier content) isn't constantly reset.
+      scrollToElementIfAtBottom() {
+        const threshold = 80; // px of slack still counted as "at the bottom"
+
+        const el = this.$refs.bottomElementRef;
+        if (el && el.scrollHeight - el.scrollTop - el.clientHeight <= threshold) {
+          el.scrollTo(0, el.scrollHeight);
+        }
+
+        const elHistory = this.$refs.bottomElementHistoryRef;
+        if (elHistory && elHistory.scrollHeight - elHistory.scrollTop - elHistory.clientHeight <= threshold) {
           elHistory.scrollTo(0, elHistory.scrollHeight);
         }
       }
