@@ -106,9 +106,9 @@
       </v-col>  
 
       <v-col cols="12" xm="12" :md="this.$store.state.collapse ? '7' : '11'" class="pa-2 border-sm viewField" :style="(!this.$store.state.show_history && this.$store.state.screen_width < 960) || this.$store.state.screen_width < 960 ? 'margin-top: 0' : ''">
-        <div style="position: relative; width: 100%; height: 100%;" v-if="!this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text)">
+        <div style="position: relative; width: 100%; height: 100%;" v-if="!this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text || this.$store.state.discussMode)">
           <iframe class="resultIframe" :class="this.$store.state.show_mobil ? 'resultIframeMobilSize' : ''" frameborder="0" :srcdoc="iframeContent"></iframe>
-          <div v-if="this.$store.state.disable_send_button" class="iframeStreamOverlay">
+          <div v-if="this.$store.state.disable_send_button && !this.$store.state.discussMode" class="iframeStreamOverlay">
             <v-progress-circular color="primary" indeterminate :size="53" :width="9"></v-progress-circular>
           </div>
         </div>
@@ -117,7 +117,7 @@
           class="my-editor"
           :key="this.$store.state.componentKey"
           style="width: 100%;"
-          v-if="this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text)"
+          v-if="this.$store.state.show_code && (!this.$store.state.disable_send_button || this.$store.state.text || this.$store.state.discussMode)"
           v-model="this.$store.state.text" :highlight="highlighter"
           line-numbers
         >

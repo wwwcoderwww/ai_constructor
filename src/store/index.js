@@ -207,20 +207,28 @@ export default createStore({
 
       try {
         if (store.state.discussMode) {
-          const discussIndex = store.state.history.length;
-          store.state.history.push({
-            text: '',
-            title: '',
-            created_at: new Date(),
-            is_question: 0
-          });
-          if (context && context.scrollElement) {
-            setTimeout(() => context.scrollElement(), 150);
-          }
+          // Блок ответа создаём только когда пришёл ответ, а не заранее —
+          // иначе появляется пустой блок сразу после нажатия «Отправить».
+          let discussIndex = null;
 
           await generateChatCode(
             prompt,
-            (chunk) => { store.state.history[discussIndex].text = chunk; },
+            (chunk) => {
+              if (discussIndex === null) {
+                discussIndex = store.state.history.length;
+                store.state.history.push({
+                  text: chunk,
+                  title: '',
+                  created_at: new Date(),
+                  is_question: 0
+                });
+                if (context && context.scrollElement) {
+                  setTimeout(() => context.scrollElement(), 150);
+                }
+              } else {
+                store.state.history[discussIndex].text = chunk;
+              }
+            },
             store.state.id,
             config.serverApi + '/claude/discusion'
           );
